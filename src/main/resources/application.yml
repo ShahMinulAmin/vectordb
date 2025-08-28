@@ -25,4 +25,4 @@ server:
 
 embedding:
   generation:
-    skip: true
+    skip: ${EMBEDDING_GENERATION_SKIP:true}

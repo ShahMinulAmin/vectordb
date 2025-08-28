@@ -1,0 +1,29 @@
+services:
+  spring-dockerized-app:
+    build:
+      context: .  # Directory to build Docker image from.
+      dockerfile: Dockerfile  # Dockerfile to use for building the image.
+    ports:
+      - 8080:8080  # Maps port 8080 in the container to port 8080 on the host.
+    depends_on:
+      - db
+    environment:
+      - SPRING_CONFIG_LOCATION=file:/app/application.yml  # Location of application properties.
+      - DB_URL=jdbc:postgresql://db:5432/vector_db_docker
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_USER=${DB_USER}
+      - EMBEDDING_GENERATION_SKIP=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./src/main/resources/application.yml:/app/application.yml
+
+  db:
+    image: pgvector/pgvector:pg17-trixie  # This adds pgvector to the Postgres image
+    container_name: db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=vector_db_docker
+    ports:
+      - "15433:5432" # maps local port 15433 to docker port 5432
+
