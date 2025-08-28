@@ -11,14 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuoteController {
     private final QuoteService quoteService;
 
-    @Autowired
     public QuoteController(QuoteService quoteService) {
         this.quoteService = quoteService;
     }
 
     @GetMapping("/quotes")
     public List<Quote> searchQuotes(@RequestParam("prompt") String prompt) {
-        System.out.println(prompt);
         return quoteService.searchQuotes(prompt);
     }
 }

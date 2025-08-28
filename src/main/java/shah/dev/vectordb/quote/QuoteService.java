@@ -21,7 +21,6 @@ public class QuoteService {
 
     private final EmbeddingModel embeddingModel;
 
-    @Autowired
     public QuoteService(JdbcClient jdbcClient, EmbeddingModel embeddingModel) {
         this.jdbcClient = jdbcClient;
         this.embeddingModel = embeddingModel;
@@ -37,7 +36,12 @@ public class QuoteService {
                 .mapToDouble(i -> outputArray[i]).boxed().toList();
         System.out.println("promptEmbeddings: " + promptEmbeddings);
 
-        // Find cosine similarity, using (1 - cosine distance)
+        /*  Search similarity using Cosine Distance (1 - Cosine Similarity):
+        * Inverts the similarity score to represent a distance.
+        *   0: Vectors are identical and perfectly similar.
+        *   1: Vectors are unrelated or orthogonal.
+        *   2: Vectors are in opposite directions and completely dissimilar.
+        * */
         String queryStr =
                 "SELECT person, quote as quoteText, 1 - (embedding <=> :prompt_embedding::vector) as similarity " +
                         "FROM quotes WHERE 1 - (embedding <=> :prompt_embedding::vector) > :threshold " +

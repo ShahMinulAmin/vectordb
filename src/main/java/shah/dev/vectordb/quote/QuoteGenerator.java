@@ -36,12 +36,12 @@ public class QuoteGenerator implements CommandLineRunner {
             String quote = rowSet.getString("quote");
             String person = rowSet.getString("person");
 
-            // prepare text to generate embedding
+            // Prepare text to generate embedding
             String text = "\"" + person + "\"" + " told \"" + quote + "\"";
             System.out.println(text);
 
-            // generate embedding using embedding model 'text-embedding-ada-002' of 'gpt-4'
-            EmbeddingRequest request = new EmbeddingRequest(Arrays.asList(text), null);
+            // Generate embedding using embedding model 'text-embedding-ada-002' of 'gpt-4'
+            EmbeddingRequest request = new EmbeddingRequest(List.of(text), null);
             EmbeddingResponse embeddingResponse = embeddingModel.call(request);
             System.out.println("embeddingResponse: " + embeddingResponse);
 
