@@ -1,5 +1,7 @@
 package shah.dev.vectordb.quote;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingRequest;
 import org.springframework.ai.embedding.EmbeddingResponse;
@@ -14,6 +16,7 @@ import java.util.stream.IntStream;
 
 @Component
 public class QuoteGenerator implements CommandLineRunner {
+    private static final Logger log = LoggerFactory.getLogger(QuoteGenerator.class);
 
     private final JdbcClient jdbcClient;
 
@@ -37,29 +40,29 @@ public class QuoteGenerator implements CommandLineRunner {
 
             // Prepare text to generate embedding
             String text = "\"" + person + "\"" + " told \"" + quote + "\"";
-            System.out.println(text);
+            log.info(text);
 
             // Generate embedding using embedding model 'text-embedding-ada-002' of 'gpt-4'
             EmbeddingRequest request = new EmbeddingRequest(List.of(text), null);
             EmbeddingResponse embeddingResponse = embeddingModel.call(request);
-            System.out.println("embeddingResponse: " + embeddingResponse);
+            log.info("embeddingResponse: " + embeddingResponse);
 
             float[] outputArray = embeddingResponse.getResult().getOutput();
             List<Double> textEmbeddings = IntStream.range(0, outputArray.length)
                     .mapToDouble(i -> outputArray[i]).boxed().toList();
-            System.out.println("textEmbeddings: " + textEmbeddings);
+            log.info("textEmbeddings: " + textEmbeddings);
 
             jdbcClient.sql("update quotes set embedding = :embedding::vector where id = :id")
                     .param("id", id)
                     .param("embedding", textEmbeddings.toString())
                     .update();
-            System.out.println("updated embedding for " + id);
+            log.info("updated embedding for " + id);
         }
     }
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Embedding generation is skipped: " + skipEmbeddingGeneration);
+        log.info("Embedding generation is skipped: " + skipEmbeddingGeneration);
         if (!skipEmbeddingGeneration) {
             generate();
         }
